@@ -10,16 +10,32 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"time"
 )
 
 var (
-	consumerKey    = flag.String("consumer-key", os.Getenv("TWITTER_CONSUMER_KEY"), "")
-	consumerSecret = flag.String("consumer-secret", os.Getenv("TWITTER_CONSUMER_SECRET"), "")
-	accessToken    = flag.String("access-token", os.Getenv("TWITTER_OAUTH_TOKEN"), "")
-	accessSecret   = flag.String("access-secret", os.Getenv("TWITTER_OAUTH_TOKEN_SECRET"), "")
+	port           = flag.String("port", "8080", "")
+	consumerKey    = flag.String("consumer-key", "", "")
+	consumerSecret = flag.String("consumer-secret", "", "")
+	accessToken    = flag.String("access-token", "", "")
+	accessSecret   = flag.String("access-secret", "", "")
+	help           = flag.Bool("help", false, "")
 )
+
+const HELP = `Usage: tw-linkfeed [options]
+
+  Serves a feed (in html at '/', and rss at '/feed') of all links in
+  your twitter timeline.
+
+    --port <port>       # Port to run on (default: '8080')
+
+    --consumer-key <value>
+    --consumer-secret <value>
+    --access-token <value>
+    --access-secret <value>
+
+    --help              # Display this help message
+`
 
 func run(store store.Store) {
 	auth := stream.Auth(*consumerKey, *consumerSecret, *accessToken, *accessSecret)
@@ -33,6 +49,11 @@ func run(store store.Store) {
 
 func main() {
 	flag.Parse()
+
+	if *help {
+		fmt.Println(HELP)
+		return
+	}
 
 	store := store.New(24, time.Hour)
 	go run(store)
@@ -69,6 +90,6 @@ func main() {
 		fmt.Fprintf(w, rss)
 	})
 
-	log.Println("listening on :8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Println("listening on :"+*port)
+	log.Fatal(http.ListenAndServe(":"+*port, nil))
 }

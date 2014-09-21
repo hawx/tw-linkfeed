@@ -3,7 +3,6 @@ package stream
 import (
 	"github.com/garyburd/go-oauth/oauth"
 	"log"
-	"time"
 )
 
 type auth struct {
@@ -29,7 +28,7 @@ func Auth(consumerKey, consumerSecret, accessToken, accessSecret string) *auth {
 type Stream chan Tweet
 
 func Timeline(creds *auth) Stream {
-	conn := newConnection(creds, 5*time.Second)
+	conn := newConnection(creds)
 	err := conn.Open()
 	if err != nil {
 		log.Fatal(err)
