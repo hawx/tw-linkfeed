@@ -30,7 +30,7 @@ func newConnection(creds *auth) *conn {
 }
 
 func (c conn) Open() error {
-	req, _ := http.NewRequest("GET", SAMPLE_URL, nil)
+	req, _ := http.NewRequest("GET", STREAM_URL, nil)
 	req.Header.Set("Authorization", c.auth.Oauth.AuthorizationHeader(c.auth.Credentials, "GET", req.URL, nil))
 
 	resp, err := c.client.Do(req)
