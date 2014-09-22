@@ -87,6 +87,7 @@ func main() {
 			return
 		}
 
+		w.Header().Add("Content-Type", "application/rss+xml")
 		fmt.Fprintf(w, rss)
 	})
 
