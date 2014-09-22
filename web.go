@@ -5,6 +5,7 @@ import (
 	"github.com/hawx/tw-linkfeed/store"
 	"github.com/hawx/tw-linkfeed/stream"
 	"github.com/hawx/tw-linkfeed/views"
+	"github.com/PuerkitoBio/goquery"
 
 	"flag"
 	"fmt"
@@ -27,13 +28,12 @@ const HELP = `Usage: tw-linkfeed [options]
   Serves a feed (in html at '/', and rss at '/feed') of all links in
   your twitter timeline.
 
-    --port <port>       # Port to run on (default: '8080')
-
     --consumer-key <value>
     --consumer-secret <value>
     --access-token <value>
     --access-secret <value>
 
+    --port <port>       # Port to run on (default: '8080')
     --help              # Display this help message
 `
 
@@ -42,7 +42,16 @@ func run(store store.Store) {
 
 	for tweet := range stream.Timeline(auth) {
 		if len(tweet.Entities.Urls) > 0 {
-			store.Add(tweet)
+			go func(tweet stream.Tweet) {
+				doc, err := goquery.NewDocument(*tweet.Entities.Urls[0].ExpandedUrl)
+				if err != nil {
+					store.Add(tweet)
+					return
+				}
+
+				tweet.Entities.Urls[0].DisplayUrl = doc.Find("title").Text()
+				store.Add(tweet)
+			}(tweet)
 		}
 	}
 }
