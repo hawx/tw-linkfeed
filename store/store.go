@@ -5,7 +5,6 @@ package store
 import (
 	"github.com/hawx/tw-linkfeed/stream"
 
-	"container/ring"
 	"sync"
 	"time"
 )
@@ -16,18 +15,36 @@ type Store interface {
 }
 
 type store struct {
-	swap   time.Time
-	bucket *ring.Ring
+	bucket *buckets
 	mutex  *sync.RWMutex
 }
 
-type bucket []stream.Tweet
-
 func New(n int, interval time.Duration) Store {
-	return &store{
-		swap:   time.Now().Add(interval),
-		bucket: ring.New(n),
+	buckets := &buckets{
+	  list: make([]*bucket, n),
+	  curr: 0,
+	}
+
+	for i := 0; i < n; i++ {
+		buckets.list[i] = &bucket{}
+	}
+
+	s := &store{
+		bucket: buckets,
 		mutex:  &sync.RWMutex{},
+	}
+
+	go s.swap(interval)
+	return s
+}
+
+func (s store) swap(interval time.Duration) {
+	for {
+		<-time.After(interval)
+		s.mutex.Lock()
+		s.bucket.Prev()
+		s.bucket.Clear()
+		s.mutex.Unlock()
 	}
 }
 
@@ -35,29 +52,12 @@ func (s store) Add(tweet stream.Tweet) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
-	if time.Now().After(s.swap) {
-		s.bucket = s.bucket.Next()
-		s.bucket.Value = nil
-	}
-
-	if s.bucket.Value == nil {
-		s.bucket.Value = bucket{tweet}
-		return
-	}
-
-	s.bucket.Value = append(s.bucket.Value.(bucket), tweet)
+	s.bucket.Add(tweet)
 }
 
 func (s store) Latest() []stream.Tweet {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 
-	tweets := []stream.Tweet{}
-	s.bucket.Do(func(value interface{}) {
-		if value != nil {
-			tweets = append(tweets, value.(bucket)...)
-		}
-	})
-
-	return tweets
+	return s.bucket.List()
 }
