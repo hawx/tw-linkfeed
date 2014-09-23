@@ -8,7 +8,8 @@ const list = `<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>tw-linkfeed</title>
+    <title>{{.Title}}</title>
+    <link rel="alternate" type="application/rss+xml" href="{{.Url}}feed" />
     <style>
       body { font: 16px/1.3 serif; max-width: 40em; margin: 0 auto; }
       h1 { font-size: 1.7em; margin: 2.6rem 0; }
@@ -20,11 +21,11 @@ const list = `<!DOCTYPE html>
   </head>
   <body>
     <header>
-      <h1>tw-linkfeed</h1>
+      <h1>{{.Title}}</h1>
     </header>
 
     <ul>
-      {{range .}}
+      {{range .Tweets}}
         <li>
           <h2>
             {{with $url := index .Entities.Urls 0}}

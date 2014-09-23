@@ -15,11 +15,15 @@ import (
 )
 
 var (
-	port           = flag.String("port", "8080", "")
 	consumerKey    = flag.String("consumer-key", "", "")
 	consumerSecret = flag.String("consumer-secret", "", "")
 	accessToken    = flag.String("access-token", "", "")
 	accessSecret   = flag.String("access-secret", "", "")
+
+	title          = flag.String("title", "tw-linkfeed", "")
+	url            = flag.String("url", "http://localhost:8080/", "")
+
+	port           = flag.String("port", "8080", "")
 	help           = flag.Bool("help", false, "")
 )
 
@@ -32,6 +36,9 @@ const HELP = `Usage: tw-linkfeed [options]
     --consumer-secret <value>
     --access-token <value>
     --access-secret <value>
+
+    --title <title>     # Title of page/feed (default: 'tw-linkfeed')
+    --url <url>         # URL running at (default: 'http://localhost:8080/')
 
     --port <port>       # Port to run on (default: '8080')
     --help              # Display this help message
@@ -49,7 +56,10 @@ func run(store store.Store) {
 					return
 				}
 
-				tweet.Entities.Urls[0].DisplayUrl = doc.Find("title").Text()
+				title := doc.Find("title").Text()
+				if title != "" {
+					tweet.Entities.Urls[0].DisplayUrl = title
+				}
 				store.Add(tweet)
 			}(tweet)
 		}
@@ -68,14 +78,18 @@ func main() {
 	go run(store)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		views.List.Execute(w, store.Latest())
+		views.List.Execute(w, struct {
+			Tweets []stream.Tweet
+			Url    string
+			Title  string
+		}{store.Latest(), *url, *title})
 	})
 
 	http.HandleFunc("/feed", func(w http.ResponseWriter, r *http.Request) {
 		now := time.Now()
 		feed := &feeds.Feed{
-			Title:   "tw-linkfeed",
-			Link:    &feeds.Link{Href: "/feed"},
+			Title:   *title,
+			Link:    &feeds.Link{Href: *url + "feed"},
 			Created: now,
 		}
 
