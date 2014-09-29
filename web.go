@@ -1,15 +1,16 @@
 package main
 
 import (
+	"github.com/PuerkitoBio/goquery"
 	"github.com/gorilla/feeds"
 	"github.com/hawx/tw-linkfeed/store"
 	"github.com/hawx/tw-linkfeed/stream"
 	"github.com/hawx/tw-linkfeed/views"
-	"github.com/PuerkitoBio/goquery"
 
 	"flag"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"time"
 )
@@ -20,11 +21,12 @@ var (
 	accessToken    = flag.String("access-token", "", "")
 	accessSecret   = flag.String("access-secret", "", "")
 
-	title          = flag.String("title", "tw-linkfeed", "")
-	url            = flag.String("url", "http://localhost:8080/", "")
+	title = flag.String("title", "tw-linkfeed", "")
+	url   = flag.String("url", "http://localhost:8080/", "")
 
-	port           = flag.String("port", "8080", "")
-	help           = flag.Bool("help", false, "")
+	port   = flag.String("port", "8080", "")
+	socket = flag.String("socket", "", "")
+	help   = flag.Bool("help", false, "")
 )
 
 const HELP = `Usage: tw-linkfeed [options]
@@ -41,6 +43,7 @@ const HELP = `Usage: tw-linkfeed [options]
     --url <url>         # URL running at (default: 'http://localhost:8080/')
 
     --port <port>       # Port to run on (default: '8080')
+    --socket <path>     # Serve using a unix socket instead
     --help              # Display this help message
 `
 
@@ -114,6 +117,16 @@ func main() {
 		fmt.Fprintf(w, rss)
 	})
 
-	log.Println("listening on :"+*port)
-	log.Fatal(http.ListenAndServe(":"+*port, nil))
+	if *socket == "" {
+		log.Println("listening on :" + *port)
+		log.Fatal(http.ListenAndServe(":"+*port, nil))
+	} else {
+		l, err := net.Listen("unix", *socket)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		log.Println("listening on", *socket)
+		log.Fatal(http.Serve(l, nil))
+	}
 }
