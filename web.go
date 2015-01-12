@@ -4,7 +4,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gorilla/feeds"
 	"github.com/hawx/tw-linkfeed/store"
-	"github.com/hawx/tw-linkfeed/stream"
+	"github.com/hawx/tw-stream"
 	"github.com/hawx/tw-linkfeed/views"
 	"github.com/hawx/serve"
 

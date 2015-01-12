@@ -1,7 +1,7 @@
 package store
 
 import (
-	"github.com/hawx/tw-linkfeed/stream"
+	"github.com/hawx/tw-stream"
 )
 
 type bucket []stream.Tweet
