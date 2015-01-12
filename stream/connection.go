@@ -11,8 +11,6 @@ import (
 )
 
 const (
-	SAMPLE_URL   = "https://stream.twitter.com/1.1/statuses/sample.json"
-	STREAM_URL   = "https://userstream.twitter.com/1.1/user.json"
 	DIAL_TIMEOUT = 5 * time.Second
 )
 
@@ -29,8 +27,8 @@ func newConnection(creds *auth) *conn {
 	return &conn{client: client, out: out, auth: creds}
 }
 
-func (c conn) Open() error {
-	req, _ := http.NewRequest("GET", STREAM_URL, nil)
+func (c conn) Open(streamUrl string) error {
+	req, _ := http.NewRequest("GET", streamUrl, nil)
 	req.Header.Set("Authorization", c.auth.Oauth.AuthorizationHeader(c.auth.Credentials, "GET", req.URL, nil))
 
 	resp, err := c.client.Do(req)

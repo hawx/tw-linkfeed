@@ -6,14 +6,11 @@ import (
 	"github.com/hawx/tw-linkfeed/store"
 	"github.com/hawx/tw-linkfeed/stream"
 	"github.com/hawx/tw-linkfeed/views"
+	"github.com/hawx/serve"
 
 	"flag"
 	"fmt"
-	"log"
-	"net"
 	"net/http"
-	"os"
-	"os/signal"
 	"time"
 )
 
@@ -109,38 +106,14 @@ func main() {
 			})
 		}
 
-		rss, err := feed.ToRss()
+		w.Header().Add("Content-Type", "application/rss+xml")
+
+		err := feed.WriteRss(w)
 		if err != nil {
 			w.WriteHeader(500)
 			return
 		}
-
-		w.Header().Add("Content-Type", "application/rss+xml")
-		fmt.Fprintf(w, rss)
 	})
 
-	if *socket == "" {
-		go func() {
-			log.Println("listening on :" + *port)
-			log.Fatal(http.ListenAndServe(":"+*port, nil))
-		}()
-	} else {
-		l, err := net.Listen("unix", *socket)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		defer l.Close()
-
-		go func() {
-			log.Println("listening on", *socket)
-			log.Fatal(http.Serve(l, nil))
-		}()
-	}
-
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt, os.Kill)
-
-	s := <-c
-	log.Printf("caught %s: shutting down", s)
+	serve.Serve(*port, *socket, http.DefaultServeMux)
 }

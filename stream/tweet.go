@@ -2,6 +2,7 @@ package stream
 
 import (
 	"encoding/json"
+	"strconv"
 	"time"
 )
 
@@ -52,4 +53,8 @@ type Tweet struct {
 	Entities  Entities `json:"entities"`
 	Text      string   `json:"text"`
 	User      User     `json:"user"`
+}
+
+func (t Tweet) Link() string {
+	return "https://twitter.com/" + t.User.ScreenName + "/status/" + strconv.FormatInt(t.Id, 10)
 }
