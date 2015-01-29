@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/PuerkitoBio/goquery"
-	"github.com/gorilla/feeds"
 	"github.com/hawx/tw-linkfeed/store"
 	"github.com/hawx/tw-stream"
-	"github.com/hawx/tw-linkfeed/views"
+
+	"github.com/PuerkitoBio/goquery"
+	"github.com/gorilla/feeds"
 	"github.com/hawx/serve"
 
 	"flag"
@@ -30,8 +30,7 @@ var (
 
 const HELP = `Usage: tw-linkfeed [options]
 
-  Serves a feed (in html at '/', and rss at '/feed') of all links in
-  your twitter timeline.
+  Serves an rss feed of all links in your twitter timeline.
 
     --consumer-key <value>
     --consumer-secret <value>
@@ -80,14 +79,6 @@ func main() {
 	go run(store)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		views.List.Execute(w, struct {
-			Tweets []stream.Tweet
-			Url    string
-			Title  string
-		}{store.Latest(), *url, *title})
-	})
-
-	http.HandleFunc("/feed", func(w http.ResponseWriter, r *http.Request) {
 		now := time.Now()
 		feed := &feeds.Feed{
 			Title:   *title,

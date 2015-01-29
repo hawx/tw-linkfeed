@@ -2,8 +2,8 @@ package store
 
 import (
 	"github.com/hawx/tw-linkfeed/stream"
-	"time"
 	"testing"
+	"time"
 )
 
 func TestStore(t *testing.T) {
@@ -22,7 +22,7 @@ func TestStore(t *testing.T) {
 	}
 
 	for i, tweet := range all {
-		if tweet.Id != int64(7 - i) {
+		if tweet.Id != int64(7-i) {
 			t.Log(all)
 			t.FailNow()
 		}

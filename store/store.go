@@ -21,8 +21,8 @@ type store struct {
 
 func New(n int, interval time.Duration) Store {
 	buckets := &buckets{
-	  list: make([]*bucket, n),
-	  curr: 0,
+		list: make([]*bucket, n),
+		curr: 0,
 	}
 
 	for i := 0; i < n; i++ {
