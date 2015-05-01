@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/hawx/tw-linkfeed/store"
 	"github.com/hawx/tw-stream"
+	"hawx.me/code/tw-linkfeed/store"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gorilla/feeds"
