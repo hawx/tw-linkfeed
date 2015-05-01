@@ -1,12 +1,12 @@
 package main
 
 import (
-	"github.com/hawx/tw-stream"
 	"hawx.me/code/tw-linkfeed/store"
+	"hawx.me/code/tw-stream"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gorilla/feeds"
-	"github.com/hawx/serve"
+	"hawx.me/code/serve"
 
 	"flag"
 	"fmt"

@@ -1,9 +1,10 @@
 package store
 
 import (
-	"github.com/hawx/tw-linkfeed/stream"
 	"testing"
 	"time"
+
+	"hawx.me/code/tw-linkfeed/stream"
 )
 
 func TestStore(t *testing.T) {

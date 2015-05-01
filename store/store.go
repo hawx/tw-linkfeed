@@ -3,7 +3,7 @@
 package store
 
 import (
-	"github.com/hawx/tw-stream"
+	"hawx.me/code/tw-stream"
 
 	"sync"
 	"time"
